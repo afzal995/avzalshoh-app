@@ -7,48 +7,17 @@
 <title>Авзалшоҳ</title>
 <style>
 *{box-sizing:border-box}
-body{
-font-family:Arial,sans-serif;
-background:#f0f4f2;
-margin:0;
-padding:15px;
-}
-header{
-background:#153c32;
-color:white;
-padding:22px;
-border-radius:18px;
-}
+body{font-family:Arial,sans-serif;background:#f0f4f2;margin:0;padding:15px}
+header{background:#153c32;color:white;padding:22px;border-radius:18px}
 h1{margin:0}
-.total{
-font-size:30px;
-font-weight:bold;
-}
-.menu{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
-margin-top:20px;
-}
-button{
-background:white;
-border:1px solid #ddd;
-border-radius:15px;
-padding:22px 8px;
-font-size:18px;
-color:#153c32;
-font-weight:bold;
-}
-button span{
-display:block;
-font-size:32px;
-margin-bottom:10px;
-}
-footer{
-text-align:center;
-color:#777;
-margin-top:25px;
-}
+.total{font-size:30px;font-weight:bold}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+button{background:white;border:1px solid #ddd;border-radius:15px;padding:20px 8px;font-size:18px;color:#153c32;font-weight:bold}
+button span{display:block;font-size:32px;margin-bottom:10px}
+section{background:white;padding:18px;border-radius:15px;margin-top:15px}
+input,select{width:100%;padding:14px;margin:8px 0 15px;border:1px solid #ccc;border-radius:8px;font-size:17px}
+.save{background:#153c32;color:white;width:100%;margin-top:10px}
+footer{text-align:center;color:#777;margin-top:25px}
 </style>
 </head>
 <body>
@@ -56,18 +25,165 @@ margin-top:25px;
 <h1>АВЗАЛШОҲ</h1>
 <p>Ҳисобу китоби мағоза</p>
 <p>Фурӯши имрӯз</p>
-<div class="total">0.00 сомонӣ</div>
+<div class="total" id="total">0.00 сомонӣ</div>
 </header>
-<div class="menu">
-<button><span>🛒</span>Фурӯш</button>
-<button><span>📦</span>Анбор</button>
-<button><span>👥</span>Қарзҳо</button>
-<button><span>💸</span>Хароҷот</button>
-<button><span>📈</span>Фоида</button>
-<button><span>📋</span>Ҳисобот</button>
-<button><span>💵</span>Нақд</button>
-<button><span>💳</span>Корт</button>
+
+<div class="menu" id="menu">
+<button onclick="openSale()"><span>🛒</span>Фурӯш</button>
+<button onclick="soon()"><span>📦</span>Анбор</button>
+<button onclick="report('debt')"><span>👥</span>Қарзҳо</button>
+<button onclick="soon()"><span>💸</span>Хароҷот</button>
+<button onclick="soon()"><span>📈</span>Фоида</button>
+<button onclick="report('all')"><span>📋</span>Ҳисобот</button>
+<button onclick="report('cash')"><span>💵</span>Нақд</button>
+<button onclick="report('card')"><span>💳</span>Корт</button>
 </div>
+
+<section id="sale" hidden>
+<h2>🛒 Фурӯши нав</h2>
+<form id="saleForm">
+<label>Номи мол</label>
+<input id="product" required placeholder="Номи молро нависед">
+<label>Миқдор</label>
+<input id="qty" type="number" min="0.001" step="any" value="1" required>
+<label>Нархи фурӯш (сомонӣ)</label>
+<input id="price" type="number" min="0.01" step="0.01" required>
+<label>Намуди пардохт</label>
+<select id="payment">
+<option value="cash">Нақд</option>
+<option value="card">Корт</option>
+<option value="debt">Қарз</option>
+</select>
+<div id="customerBox" hidden>
+<label>Номи қарздор</label>
+<input id="customer">
+</div>
+<h2 id="amount">0.00 сомонӣ</h2>
+<button class="save" type="submit">Сабт кардан</button>
+</form>
+<button onclick="home()">⬅ Бозгашт</button>
+</section>
+
+<section id="reports" hidden>
+<h2 id="reportTitle"></h2>
+<h2 id="reportTotal"></h2>
+<div id="reportList"></div>
+<button onclick="home()">⬅ Бозгашт</button>
+</section>
+
 <footer>Авзалшоҳ • 2026</footer>
+
+<script>
+const el=id=>document.getElementById(id);
+let sales=JSON.parse(localStorage.getItem('avzalSales')||'[]');
+
+function today(){
+let d=new Date();
+return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+}
+
+function money(n){
+return n.toFixed(2)+' сомонӣ';
+}
+
+function update(){
+let sum=sales.filter(s=>s.date===today()).reduce((a,s)=>a+s.amount,0);
+el('total').textContent=money(sum);
+}
+
+function home(){
+el('menu').hidden=false;
+el('menu').style.display='grid';
+el('sale').hidden=true;
+el('reports').hidden=true;
+update();
+}
+
+function openSale(){
+el('menu').style.display='none';
+el('reports').hidden=true;
+el('sale').hidden=false;
+}
+
+function calc(){
+let n=Number(el('qty').value)*Number(el('price').value);
+el('amount').textContent=money(n||0);
+}
+
+el('qty').oninput=calc;
+el('price').oninput=calc;
+
+el('payment').onchange=function(){
+let debt=this.value==='debt';
+el('customerBox').hidden=!debt;
+el('customer').required=debt;
+};
+
+el('saleForm').onsubmit=function(e){
+e.preventDefault();
+let qty=Number(el('qty').value);
+let price=Number(el('price').value);
+let name=el('product').value.trim();
+let type=el('payment').value;
+let customer=el('customer').value.trim();
+
+if(!name||qty<=0||price<=0||!Number.isFinite(qty*price))return;
+if(type==='debt'&&!customer)return;
+
+let item={
+name:name,
+qty:qty,
+price:price,
+amount:Math.round(qty*price*100)/100,
+type:type,
+customer:type==='debt'?customer:'',
+date:today()
+};
+
+try{
+let next=[...sales,item];
+localStorage.setItem('avzalSales',JSON.stringify(next));
+sales=next;
+}catch(e){
+alert('Хатогӣ: маълумот сабт нашуд!');
+return;
+}
+
+this.reset();
+el('customerBox').hidden=true;
+el('customer').required=false;
+calc();
+home();
+alert('Фурӯш сабт шуд!');
+};
+
+function report(type){
+el('menu').style.display='none';
+el('sale').hidden=true;
+el('reports').hidden=false;
+
+let titles={cash:'Нақди имрӯз',card:'Корти имрӯз',debt:'Фурӯши қарзӣ',all:'Ҳисоботи имрӯз'};
+el('reportTitle').textContent=titles[type];
+
+let rows=sales.filter(s=>
+(type==='debt'||s.date===today())&&
+(type==='all'||s.type===type));
+
+el('reportTotal').textContent=money(rows.reduce((a,s)=>a+s.amount,0));
+el('reportList').replaceChildren();
+
+rows.forEach(s=>{
+let p=document.createElement('p');
+p.textContent=s.date+' | '+s.name+' — '+s.qty+' × '+s.price+' = '+money(s.amount)+(s.customer?' | '+s.customer:'');
+el('reportList').appendChild(p);
+});
+}
+
+function soon(){
+alert('Ин бахш ҳоло омода нест');
+}
+
+update();
+</script>
 </body>
 </html>
