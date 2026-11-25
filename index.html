@@ -1,4 +1,4 @@
- 
+
 <!DOCTYPE html>
 <html lang="tg">
 <head>
@@ -139,11 +139,24 @@ type:type,
 customer:type==='debt'?customer:'',
 date:today()
 };
-
+let stock = JSON.parse(localStorage.getItem('avzalStock') || '[]');
+let stockIndex = stock.findIndex(x =>
+  x.name.trim().toLowerCase() === name.toLowerCase()
+);
+if (stockIndex === -1) {
+  alert('Ин мол дар анбор ёфт нашуд!');
+  return;
+}
+if (stock[stockIndex].qty < qty) {
+  alert('Дар анбор мол кофӣ нест!');
+  return;
+}
 try{
 let next=[...sales,item];
 localStorage.setItem('avzalSales',JSON.stringify(next));
 sales=next;
+ stock[stockIndex].qty -= qty;
+localStorage.setItem('avzalStock', JSON.stringify(stock));
 }catch(e){
 alert('Хатогӣ: маълумот сабт нашуд!');
 return;
