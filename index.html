@@ -32,7 +32,9 @@ footer{text-align:center;color:#777;margin-top:25px}
 <button onclick="openSale()"><span>🛒</span>Фурӯш</button>
 <button onclick="openStock()"><span>📦</span>Анбор</button>
 <button onclick="report('debt')"><span>👥</span>Қарзҳо</button>
-<button onclick="soon()"><span>💸</span>Хароҷот</button>
+<button onclick="
+openExpenses()
+()"><span>💸</span>Хароҷот</button>
 <button onclick="soon()"><span>📈</span>Фоида</button>
 <button onclick="report('all')"><span>📋</span>Ҳисобот</button>
 <button onclick="report('cash')"><span>💵</span>Нақд</button>
@@ -77,6 +79,13 @@ footer{text-align:center;color:#777;margin-top:25px}
 <div id="reportList"></div>
 <button onclick="home()">⬅ Бозгашт</button>
 </section>
+  
+<section id="debtors" hidden>
+  <h2>Рӯйхати қарздорон</h2>
+  <div id="debtorsList"></div>
+  <button onclick="home()">← Бозгашт</button>
+</section>
+
 
 <footer>Авзалшоҳ • 2026</footer>
 
@@ -332,6 +341,45 @@ function closeStock(){
   el('menu').style.display='grid';
    }
 update();
+
+function openExpenses(){
+  let amountText = prompt('Маблағи хароҷотро навис (сомонӣ):');
+  if(amountText === null || amountText.trim() === '') return;
+
+  let amount = Number(amountText.replace(',', '.'));
+  if(!Number.isFinite(amount) || amount <= 0){
+    alert('Маблағ нодуруст аст!');
+    return;
+  }
+
+  let reason = prompt('Сабаби хароҷотро навис:');
+  if(reason === null || !reason.trim()) return;
+
+  let method = prompt('Тарзи пардохт:\n1 - Нақд\n2 - Корт');
+  if(method !== '1' && method !== '2'){
+    alert('Нақд ё кортро дуруст интихоб кун!');
+    return;
+  }
+
+  let expenses = JSON.parse(
+    localStorage.getItem('avzalshoh_expenses') || '[]'
+  );
+
+  expenses.push({
+    amount: amount,
+    reason: reason.trim(),
+    method: method === '1' ? 'cash' : 'card',
+    date: today()
+  });
+
+  localStorage.setItem(
+    'avzalshoh_expenses',
+    JSON.stringify(expenses)
+  );
+
+  alert('Хароҷот бомуваффақият сабт шуд!');
+}
+
 </script>
 </body>
 </html>
