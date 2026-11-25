@@ -44,7 +44,9 @@ footer{text-align:center;color:#777;margin-top:25px}
 <form id="saleForm">
 <label>Номи мол</label>
 <input id="product" required placeholder="Номи молро нависед" list="productList"> 
-  <datalist id="productList"></datalist>
+
+<div id="productSuggestions"></div>
+
 <label>Миқдор</label>
 <input id="qty" type="number" min="0.001" step="any" value="1" required>
 <label>Нархи фурӯш (сомонӣ)</label>
@@ -106,29 +108,32 @@ el('reports').hidden=true;
 el('sale').hidden=false;
 }
 
+
 function stockSuggestions(){
   const stock=JSON.parse(localStorage.getItem('avzalStock')||'[]');
-  const list=el('productList');
-  list.replaceChildren();
-  stock.forEach(item=>{
-    if(Number(item.qty)<=0)return;
-    const option=document.createElement('option');
-    option.value=item.name;
-    list.appendChild(option);
+  const box=el('productSuggestions');
+  const query=el('product').value.trim().toLowerCase();
+  box.replaceChildren();
+  if(!query)return;
+
+  stock.filter(x=>
+    Number(x.qty)>0 &&
+    x.name.toLowerCase().includes(query)
+  ).slice(0,10).forEach(item=>{
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.textContent=item.name+' — '+item.qty+' дона';
+    btn.onclick=function(){
+      el('product').value=item.name;
+      el('price').value=item.price;
+      box.replaceChildren();
+      calc();
+    };
+    box.appendChild(btn);
   });
 }
 
-el('product').addEventListener('input',function(){
-  const stock=JSON.parse(localStorage.getItem('avzalStock')||'[]');
-  const item=stock.find(x=>x.name.trim().toLowerCase()===this.value.trim().toLowerCase());
-  if(item){
-    el('price').value=item.price;
-    calc();
-    alert('Дар анбор: '+item.qty+' дона');
-  }
-});
-
-stockSuggestions();
+el('product').addEventListener('input',stockSuggestions);
 
 function calc(){
 let n=Number(el('qty').value)*Number(el('price').value);
