@@ -60,6 +60,10 @@ footer{text-align:center;color:#777;margin-top:25px}
 <div id="customerBox" hidden>
 <label>Номи қарздор</label>
 <input id="customer">
+  
+<label>Рақами телефони қарздор</label>
+<input id="customerPhone" type="tel" placeholder="+992 XX XXX XX XX">
+
 </div>
 <h2 id="amount">0.00 сомонӣ</h2>
 <button class="save" type="submit">Сабт кардан</button>
@@ -156,6 +160,7 @@ let price=Number(el('price').value);
 let name=el('product').value.trim();
 let type=el('payment').value;
 let customer=el('customer').value.trim();
+  let customerPhone=el('customerPhone').value.trim();
 
 if(!name||qty<=0||price<=0||!Number.isFinite(qty*price))return;
 if(type==='debt'&&!customer)return;
@@ -167,6 +172,7 @@ price:price,
 amount:Math.round(qty*price*100)/100,
 type:type,
 customer:type==='debt'?customer:'',
+  phone:type==='debt'?customerPhone:'',
 date:today()
 };
 let stock = JSON.parse(localStorage.getItem('avzalStock') || '[]');
