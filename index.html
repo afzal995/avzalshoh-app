@@ -1,12 +1,73 @@
+ 
 <!DOCTYPE html>
 <html lang="tg">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Авзалшоҳ</title>
+<style>
+*{box-sizing:border-box}
+body{
+font-family:Arial,sans-serif;
+background:#f0f4f2;
+margin:0;
+padding:15px;
+}
+header{
+background:#153c32;
+color:white;
+padding:22px;
+border-radius:18px;
+}
+h1{margin:0}
+.total{
+font-size:30px;
+font-weight:bold;
+}
+.menu{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+margin-top:20px;
+}
+button{
+background:white;
+border:1px solid #ddd;
+border-radius:15px;
+padding:22px 8px;
+font-size:18px;
+color:#153c32;
+font-weight:bold;
+}
+button span{
+display:block;
+font-size:32px;
+margin-bottom:10px;
+}
+footer{
+text-align:center;
+color:#777;
+margin-top:25px;
+}
+</style>
 </head>
 <body>
-<h1>Мағозаи Авзалшоҳ</h1>
-<p>Барномаи ҳисобу китоби мағоза</p>
+<header>
+<h1>АВЗАЛШОҲ</h1>
+<p>Ҳисобу китоби мағоза</p>
+<p>Фурӯши имрӯз</p>
+<div class="total">0.00 сомонӣ</div>
+</header>
+<div class="menu">
+<button><span>🛒</span>Фурӯш</button>
+<button><span>📦</span>Анбор</button>
+<button><span>👥</span>Қарзҳо</button>
+<button><span>💸</span>Хароҷот</button>
+<button><span>📈</span>Фоида</button>
+<button><span>📋</span>Ҳисобот</button>
+<button><span>💵</span>Нақд</button>
+<button><span>💳</span>Корт</button>
+</div>
+<footer>Авзалшоҳ • 2026</footer>
 </body>
 </html>
