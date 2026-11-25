@@ -182,7 +182,106 @@ el('reportList').appendChild(p);
 function soon(){
 alert('Ин бахш ҳоло омода нест');
 }
+function openStock(){
+  el('menu').style.display='none';
+  el('sale').hidden=true;
+  el('reports').hidden=true;
 
+  let box=document.getElementById('stock');
+
+  if(!box){
+    box=document.createElement('section');
+    box.id='stock';
+    document.body.appendChild(box);
+  }
+
+  box.hidden=false;
+
+  box.innerHTML=`
+    <h2>📦 Анбор</h2>
+    <form id="stockForm">
+
+      <label>Номи мол</label>
+      <input id="stockName" required>
+
+      <label>Миқдор</label>
+      <input id="stockQty" type="number" min="0.001" step="any" required>
+
+      <label>Нархи харид</label>
+      <input id="stockCost" type="number" min="0" step="any" required>
+
+      <label>Нархи фурӯш</label>
+      <input id="stockPrice" type="number" min="0.01" step="any" required>
+
+      <button type="submit">
+        Сабт кардан
+      </button>
+    </form>
+
+    <h3>Молҳои анбор</h3>
+    <div id="stockList"></div>
+
+    <button onclick="closeStock()">
+      ← Бозгашт
+    </button>
+  `;
+
+  let items=JSON.parse(
+    localStorage.getItem('avzalStock')||'[]'
+  );
+
+  function showItems(){
+    el('stockList').replaceChildren();
+
+    items.forEach(item=>{
+      let p=document.createElement('p');
+
+      p.textContent=
+        item.name+' | '+
+        item.qty+' адад | '+
+        'Харид: '+item.cost+' с | '+
+        'Фурӯш: '+item.price+' с';
+
+      el('stockList').appendChild(p);
+    });
+  }
+
+  el('stockForm').onsubmit=function(e){
+    e.preventDefault();
+
+    let item={
+      name:el('stockName').value.trim(),
+      qty:Number(el('stockQty').value),
+      cost:Number(el('stockCost').value),
+      price:Number(el('stockPrice').value)
+    };
+
+    if(!item.name)return;
+
+    let next=[...items,item];
+
+    try{
+      localStorage.setItem(
+        'avzalStock',
+        JSON.stringify(next)
+      );
+
+      items=next;
+      this.reset();
+      showItems();
+
+    }catch(e){
+      alert('Хатогӣ: маълумот сабт нашуд');
+    }
+  };
+
+  showItems();
+}
+
+function closeStock(){
+  el('stock').hidden=true;
+  el('menu').style.display='grid';
+   }
 update();
 </script>
 </body>
