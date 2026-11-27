@@ -3,21 +3,25 @@
 <html lang="tg">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Авзалшоҳ</title>
 <style>
 *{box-sizing:border-box}
-body{font-family:Arial,sans-serif;background:#f0f4f2;margin:0;padding:15px}
+body{font-family:Arial,sans-serif;background:#f0f4f2;margin:0;padding:15px;color:#153c32}
 header{background:#153c32;color:white;padding:22px;border-radius:18px}
 h1{margin:0}
 .total{font-size:30px;font-weight:bold}
 .menu{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
-button{background:white;border:1px solid #ddd;border-radius:15px;padding:20px 8px;font-size:18px;color:#153c32;font-weight:bold}
-button span{display:block;font-size:32px;margin-bottom:10px}
+button{background:white;border:1px solid #ddd;border-radius:12px;padding:15px 8px;font-size:16px;color:#153c32;font-weight:bold;cursor:pointer}
+button span{display:block;font-size:28px}
 section{background:white;padding:18px;border-radius:15px;margin-top:15px}
-input,select{width:100%;padding:14px;margin:8px 0 15px;border:1px solid #ccc;border-radius:8px;font-size:17px}
+input,select{width:100%;padding:13px;margin:8px 0 15px;border:1px solid #ccc;border-radius:8px;font-size:17px}
 .save{background:#153c32;color:white;width:100%;margin-top:10px}
-footer{text-align:center;color:#777;margin-top:25px}
+.item{border:1px solid #ddd;border-radius:12px;padding:13px;margin:10px 0}
+.small{color:#667;font-size:14px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+[hidden]{display:none!important}
+footer{text-align:center;color:#777;margin:25px}
 </style>
 </head>
 <body>
@@ -31,10 +35,8 @@ footer{text-align:center;color:#777;margin-top:25px}
 <div class="menu" id="menu">
 <button onclick="openSale()"><span>🛒</span>Фурӯш</button>
 <button onclick="openStock()"><span>📦</span>Анбор</button>
-<button onclick="report('debt')"><span>👥</span>Қарзҳо</button>
-
+<button onclick="openDebts()"><span>👥</span>Қарзҳо</button>
 <button onclick="openExpenses()"><span>💸</span>Хароҷот</button>
-
 <button onclick="soon()"><span>📈</span>Фоида</button>
 <button onclick="report('all')"><span>📋</span>Ҳисобот</button>
 <button onclick="report('cash')"><span>💵</span>Нақд</button>
@@ -45,13 +47,11 @@ footer{text-align:center;color:#777;margin-top:25px}
 <h2>🛒 Фурӯши нав</h2>
 <form id="saleForm">
 <label>Номи мол</label>
-<input id="product" required placeholder="Номи молро нависед"> 
-
+<input id="product" required placeholder="Номи мол">
 <div id="productSuggestions"></div>
-
 <label>Миқдор</label>
 <input id="qty" type="number" min="0.001" step="any" value="1" required>
-<label>Нархи фурӯш (сомонӣ)</label>
+<label>Нархи фурӯш</label>
 <input id="price" type="number" min="0.01" step="0.01" required>
 <label>Намуди пардохт</label>
 <select id="payment">
@@ -62,15 +62,64 @@ footer{text-align:center;color:#777;margin-top:25px}
 <div id="customerBox" hidden>
 <label>Номи қарздор</label>
 <input id="customer">
-  
-<label>Рақами телефони қарздор</label>
-<input id="customerPhone" type="tel" placeholder="+992 XX XXX XX XX">
-
+<label>Телефон</label>
+<input id="customerPhone" type="tel">
 </div>
 <h2 id="amount">0.00 сомонӣ</h2>
 <button class="save" type="submit">Сабт кардан</button>
 </form>
 <button onclick="home()">⬅ Бозгашт</button>
+</section>
+
+<section id="stock" hidden>
+<h2>📦 Анбор</h2>
+<form id="stockForm">
+<label>Номи мол</label>
+<input id="stockName" required>
+<label>Миқдор</label>
+<input id="stockQty" type="number" min="0.001" step="any" required>
+<label>Нархи харид</label>
+<input id="stockCost" type="number" min="0" step="any" required>
+<label>Нархи фурӯш</label>
+<input id="stockPrice" type="number" min="0.01" step="any" required>
+<button class="save">Илова ба анбор</button>
+</form>
+<div id="stockList"></div>
+<button onclick="home()">⬅ Бозгашт</button>
+</section>
+
+<section id="debts" hidden>
+<h2>👥 Қарзҳо</h2>
+<input id="debtSearch" placeholder="🔍 Ном ё рақами телефон">
+<div class="row">
+<button onclick="setDebtFilter('active')">Қарзҳои фаъол</button>
+<button onclick="setDebtFilter('paid')">Пардохтшуда</button>
+</div>
+<h3 id="debtTotal"></h3>
+<div id="debtList"></div>
+<button onclick="home()">⬅ Бозгашт</button>
+</section>
+
+<section id="folder" hidden>
+<h2 id="folderName"></h2>
+<p id="folderPhone"></p>
+<h2 id="folderBalance"></h2>
+<h3>Молҳои қарзгирифта</h3>
+<div id="folderSales"></div>
+<h3>Таърихи пардохтҳо</h3>
+<div id="folderPayments"></div>
+<form id="paymentForm">
+<h3>Қабули пардохти қарз</h3>
+<label>Маблағ</label>
+<input id="payAmount" type="number" min="0.01" step="0.01" required>
+<label>Тарзи пардохт</label>
+<select id="payMethod">
+<option value="cash">Нақд</option>
+<option value="card">Корт</option>
+</select>
+<button class="save">Қабули пардохт</button>
+</form>
+<button onclick="openDebts()">⬅ Бозгашт</button>
 </section>
 
 <section id="reports" hidden>
@@ -79,307 +128,323 @@ footer{text-align:center;color:#777;margin-top:25px}
 <div id="reportList"></div>
 <button onclick="home()">⬅ Бозгашт</button>
 </section>
-  
-<section id="debtors" hidden>
-  <h2>Рӯйхати қарздорон</h2>
-  <div id="debtorsList"></div>
-  <button onclick="home()">← Бозгашт</button>
-</section>
-
 
 <footer>Авзалшоҳ • 2026</footer>
 
 <script>
 const el=id=>document.getElementById(id);
-let sales=JSON.parse(localStorage.getItem('avzalSales')||'[]');
+const read=(key)=>JSON.parse(localStorage.getItem(key)||'[]');
+const save=(key,data)=>localStorage.setItem(key,JSON.stringify(data));
+let sales=read('avzalSales');
+let stock=read('avzalStock');
+let payments=read('avzalDebtPayments');
+let expenses=read('avzalshoh_expenses');
+let debtFilter='active';
+let selectedCustomer='';
 
 function today(){
-let d=new Date();
+const d=new Date();
 return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
 }
-
-function money(n){
-return n.toFixed(2)+' сомонӣ';
+function timestamp(){return new Date().toISOString()}
+function money(n){return Number(n||0).toFixed(2)+' сомонӣ'}
+function norm(s){return String(s||'').trim().toLocaleLowerCase()}
+function customerKey(s){
+return norm(s.customer);
 }
-
+function refresh(){
+sales=read('avzalSales');
+stock=read('avzalStock');
+payments=read('avzalDebtPayments');
+expenses=read('avzalshoh_expenses');
+}
+function show(id){
+document.querySelectorAll('section').forEach(s=>s.hidden=true);
+el('menu').style.display='none';
+el(id).hidden=false;
+}
 function update(){
-let sum=sales.filter(s=>s.date===today()).reduce((a,s)=>a+s.amount,0);
+refresh();
+let sum=sales.filter(s=>s.date===today())
+.reduce((a,s)=>a+Number(s.amount),0);
 el('total').textContent=money(sum);
 }
-
 function home(){
-el('menu').hidden=false;
+document.querySelectorAll('section').forEach(s=>s.hidden=true);
 el('menu').style.display='grid';
-el('sale').hidden=true;
-el('reports').hidden=true;
 update();
 }
-
-function openSale(){
-el('menu').style.display='none';
-el('reports').hidden=true;
-el('sale').hidden=false;
-}
-
-
-function stockSuggestions(){
-  const stock=JSON.parse(localStorage.getItem('avzalStock')||'[]');
-  const box=el('productSuggestions');
-  const query=el('product').value.trim().toLowerCase();
-  box.replaceChildren();
-  if(!query)return;
-
-  stock.filter(x=>
-    Number(x.qty)>0 &&
-    x.name.toLowerCase().includes(query)
-  ).slice(0,10).forEach(item=>{
-    const btn=document.createElement('button');
-    btn.type='button';
-    btn.textContent=item.name+' — '+item.qty+' дона';
-    btn.onclick=function(){
-      el('product').value=item.name;
-      el('price').value=item.price;
-      box.replaceChildren();
-      calc();
-    };
-    box.appendChild(btn);
-  });
-}
-
-el('product').addEventListener('input',stockSuggestions);
-
 function calc(){
 let n=Number(el('qty').value)*Number(el('price').value);
 el('amount').textContent=money(n||0);
 }
-
+function openSale(){
+show('sale');
+refresh();
+}
 el('qty').oninput=calc;
 el('price').oninput=calc;
-
 el('payment').onchange=function(){
-let debt=this.value==='debt';
+const debt=this.value==='debt';
 el('customerBox').hidden=!debt;
 el('customer').required=debt;
 };
-
+el('product').oninput=function(){
+const q=norm(this.value);
+const box=el('productSuggestions');
+box.replaceChildren();
+if(!q)return;
+stock.filter(x=>Number(x.qty)>0&&norm(x.name).includes(q))
+.slice(0,10).forEach(x=>{
+const b=document.createElement('button');
+b.type='button';
+b.textContent=x.name+' — '+x.qty+' адад';
+b.onclick=()=>{
+el('product').value=x.name;
+el('price').value=x.price;
+box.replaceChildren();
+calc();
+};
+box.appendChild(b);
+});
+};
 el('saleForm').onsubmit=function(e){
 e.preventDefault();
-let qty=Number(el('qty').value);
-let price=Number(el('price').value);
-let name=el('product').value.trim();
-let type=el('payment').value;
-let customer=el('customer').value.trim();
-  let customerPhone=el('customerPhone').value.trim();
-
-if(!name||qty<=0||price<=0||!Number.isFinite(qty*price))return;
-if(type==='debt'&&!customer)return;
-
-let item={
-name:name,
-qty:qty,
-price:price,
+refresh();
+const name=el('product').value.trim();
+const qty=Number(el('qty').value);
+const price=Number(el('price').value);
+const type=el('payment').value;
+const customer=el('customer').value.trim();
+const phone=el('customerPhone').value.trim();
+if(!name||!Number.isFinite(qty)||!Number.isFinite(price)||qty<=0||price<=0)return;
+if(type==='debt'&&!customer){alert('Номи қарздорро нависед');return}
+const index=stock.findIndex(x=>norm(x.name)===norm(name));
+if(index<0){alert('Мол дар анбор нест');return}
+if(Number(stock[index].qty)<qty){alert('Мол кофӣ нест');return}
+const item={
+id:crypto.randomUUID(),
+name,qty,price,
 amount:Math.round(qty*price*100)/100,
-type:type,
-customer:type==='debt'?customer:'',
-  phone:type==='debt'?customerPhone:'',
-date:today()
+cost:Number(stock[index].cost)||0,
+type,customer:type==='debt'?customer:'',
+phone:type==='debt'?phone:'',
+date:today(),createdAt:timestamp()
 };
-let stock = JSON.parse(localStorage.getItem('avzalStock') || '[]');
-let stockIndex = stock.findIndex(x =>
-  x.name.trim().toLowerCase() === name.toLowerCase()
-);
-if (stockIndex === -1) {
-  alert('Ин мол дар анбор ёфт нашуд!');
-  return;
-}
-if (stock[stockIndex].qty < qty) {
-  alert('Дар анбор мол кофӣ нест!');
-  return;
-}
+stock[index].qty=Number((Number(stock[index].qty)-qty).toFixed(3));
 try{
-let next=[...sales,item];
-localStorage.setItem('avzalSales',JSON.stringify(next));
-sales=next;
- stock[stockIndex].qty -= qty;
-localStorage.setItem('avzalStock', JSON.stringify(stock));
-}catch(e){
-alert('Хатогӣ: маълумот сабт нашуд!');
-return;
-}
-
+save('avzalSales',[...sales,item]);
+save('avzalStock',stock);
+}catch(err){alert('Хатогии сабт');return}
 this.reset();
 el('customerBox').hidden=true;
 el('customer').required=false;
+el('productSuggestions').replaceChildren();
 calc();
 home();
-alert('Фурӯш сабт шуд!');
+alert('Фурӯш сабт шуд');
+};
+
+function openStock(){
+refresh();
+show('stock');
+showStock();
+}
+function showStock(){
+const box=el('stockList');
+box.replaceChildren();
+stock.forEach(x=>{
+const p=document.createElement('div');
+p.className='item';
+p.textContent=x.name+' | '+x.qty+' адад | Харид: '+money(x.cost)+' | Фурӯш: '+money(x.price);
+box.appendChild(p);
+});
+}
+el('stockForm').onsubmit=function(e){
+e.preventDefault();
+refresh();
+const name=el('stockName').value.trim();
+const qty=Number(el('stockQty').value);
+const cost=Number(el('stockCost').value);
+const price=Number(el('stockPrice').value);
+if(!name||qty<=0||cost<0||price<=0)return;
+const index=stock.findIndex(x=>norm(x.name)===norm(name));
+if(index>=0){
+stock[index].qty=Number(stock[index].qty)+qty;
+stock[index].cost=cost;
+stock[index].price=price;
+}else{
+stock.push({name,qty,cost,price});
+}
+try{save('avzalStock',stock)}
+catch(err){alert('Хатогии сабт');return}
+this.reset();
+showStock();
+};
+
+function debtors(){
+const map=new Map();
+sales.filter(s=>s.type==='debt').forEach(s=>{
+const key=customerKey(s);
+if(!key)return;
+if(!map.has(key))map.set(key,{
+key,name:s.customer,phone:s.phone||'',sales:[],payments:[],total:0,paid:0
+});
+const d=map.get(key);
+d.sales.push(s);
+d.total+=Number(s.amount);
+if(s.phone)d.phone=s.phone;
+});
+payments.forEach(p=>{
+const key=norm(p.customerKey||p.customer);
+if(!map.has(key))return;
+const d=map.get(key);
+d.payments.push(p);
+d.paid+=Number(p.amount);
+});
+return [...map.values()].map(d=>({
+...d,balance:Math.max(0,Math.round((d.total-d.paid)*100)/100)
+}));
+}
+function openDebts(){
+refresh();
+show('debts');
+renderDebts();
+}
+function setDebtFilter(f){
+debtFilter=f;
+renderDebts();
+}
+el('debtSearch').oninput=renderDebts;
+function renderDebts(){
+const q=norm(el('debtSearch').value);
+const all=debtors();
+const rows=all.filter(d=>
+(debtFilter==='active'?d.balance>0:d.balance<=0)&&
+(norm(d.name).includes(q)||norm(d.phone).includes(q))
+);
+el('debtTotal').textContent='Қарзи умумӣ: '+money(all.reduce((a,d)=>a+d.balance,0));
+const box=el('debtList');
+box.replaceChildren();
+rows.forEach(d=>{
+const b=document.createElement('button');
+b.className='item';
+b.style.width='100%';
+b.textContent='📁 '+d.name+' | '+money(d.balance)+' | '+d.phone;
+b.onclick=()=>openFolder(d.key);
+box.appendChild(b);
+});
+if(!rows.length)box.textContent='Қарздор ёфт нашуд';
+}
+function openFolder(key){
+selectedCustomer=key;
+refresh();
+const d=debtors().find(x=>x.key===key);
+if(!d)return openDebts();
+show('folder');
+el('folderName').textContent='📁 '+d.name;
+el('folderPhone').textContent='Телефон: '+d.phone;
+el('folderBalance').textContent='Боқимонда: '+money(d.balance);
+const a=el('folderSales');
+const b=el('folderPayments');
+a.replaceChildren();b.replaceChildren();
+d.sales.forEach(s=>{
+const p=document.createElement('div');
+p.className='item';
+p.textContent=s.date+' | '+s.name+' | '+s.qty+' × '+money(s.price)+' = '+money(s.amount);
+a.appendChild(p);
+});
+d.payments.forEach(p=>{
+const x=document.createElement('div');
+x.className='item';
+x.textContent=p.date+' | '+money(p.amount)+' | '+(p.method==='cash'?'Нақд':'Корт');
+b.appendChild(x);
+});
+el('paymentForm').hidden=d.balance<=0;
+el('payAmount').max=d.balance;
+}
+el('paymentForm').onsubmit=function(e){
+e.preventDefault();
+refresh();
+const d=debtors().find(x=>x.key===selectedCustomer);
+if(!d)return;
+const amount=Number(el('payAmount').value);
+if(!Number.isFinite(amount)||amount<=0||amount>d.balance){
+alert('Маблағ аз қарзи боқимонда зиёд аст');
+return;
+}
+const p={
+id:crypto.randomUUID(),
+customerKey:d.key,
+customer:d.name,
+amount:Math.round(amount*100)/100,
+method:el('payMethod').value,
+date:today(),createdAt:timestamp()
+};
+try{save('avzalDebtPayments',[...payments,p])}
+catch(err){alert('Пардохт сабт нашуд');return}
+this.reset();
+openFolder(selectedCustomer);
+alert('Пардохт сабт шуд');
 };
 
 function report(type){
-el('menu').style.display='none';
-el('sale').hidden=true;
-el('reports').hidden=false;
-
-let titles={cash:'Нақди имрӯз',card:'Корти имрӯз',debt:'Фурӯши қарзӣ',all:'Ҳисоботи имрӯз'};
+refresh();
+show('reports');
+const titles={
+all:'Ҳисоботи имрӯз',
+cash:'Нақди имрӯз',
+card:'Корти имрӯз'
+};
 el('reportTitle').textContent=titles[type];
-
-let rows=sales.filter(s=>
-(type==='debt'||s.date===today())&&
-(type==='all'||s.type===type));
-
-el('reportTotal').textContent=money(rows.reduce((a,s)=>a+s.amount,0));
-el('reportList').replaceChildren();
-
+const rows=sales.filter(s=>s.date===today()&&(type==='all'||s.type===type));
+const received=payments.filter(p=>p.date===today()&&(type==='all'||p.method===type));
+const saleSum=rows.reduce((a,s)=>a+Number(s.amount),0);
+const debtSum=received.reduce((a,p)=>a+Number(p.amount),0);
+el('reportTotal').textContent='Фурӯш: '+money(saleSum);
+const box=el('reportList');
+box.replaceChildren();
 rows.forEach(s=>{
-let p=document.createElement('p');
-p.textContent=s.date+' | '+s.name+' — '+s.qty+' × '+s.price+' = '+money(s.amount)+(s.customer?' | '+s.customer:'');
-el('reportList').appendChild(p);
+const p=document.createElement('p');
+p.textContent=s.date+' | '+s.name+' | '+s.qty+' × '+money(s.price)+' | '+(s.type==='debt'?'Қарз':s.type==='cash'?'Нақд':'Корт')+(s.customer?' | '+s.customer:'');
+box.appendChild(p);
 });
+const h=document.createElement('h3');
+h.textContent='Пардохти қарзҳои пешина: '+money(debtSum);
+box.appendChild(h);
+received.forEach(p=>{
+const x=document.createElement('p');
+x.textContent=p.customer+' | '+money(p.amount)+' | '+(p.method==='cash'?'Нақд':'Корт');
+box.appendChild(x);
+});
+const spent=expenses.filter(x=>x.date===today()&&(type==='all'||x.method===type))
+.reduce((a,x)=>a+Number(x.amount),0);
+const foot=document.createElement('h3');
+foot.textContent='Хароҷот: '+money(spent);
+box.appendChild(foot);
 }
-
-function soon(){
-alert('Ин бахш ҳоло омода нест');
-}
-function openStock(){
-  el('menu').style.display='none';
-  el('sale').hidden=true;
-  el('reports').hidden=true;
-
-  let box=document.getElementById('stock');
-
-  if(!box){
-    box=document.createElement('section');
-    box.id='stock';
-    document.body.appendChild(box);
-  }
-
-  box.hidden=false;
-
-  box.innerHTML=`
-    <h2>📦 Анбор</h2>
-    <form id="stockForm">
-
-      <label>Номи мол</label>
-      <input id="stockName" required>
-
-      <label>Миқдор</label>
-      <input id="stockQty" type="number" min="0.001" step="any" required>
-
-      <label>Нархи харид</label>
-      <input id="stockCost" type="number" min="0" step="any" required>
-
-      <label>Нархи фурӯш</label>
-      <input id="stockPrice" type="number" min="0.01" step="any" required>
-
-      <button type="submit">
-        Сабт кардан
-      </button>
-    </form>
-
-    <h3>Молҳои анбор</h3>
-    <div id="stockList"></div>
-
-    <button onclick="closeStock()">
-      ← Бозгашт
-    </button>
-  `;
-
-  let items=JSON.parse(
-    localStorage.getItem('avzalStock')||'[]'
-  );
-
-  function showItems(){
-    el('stockList').replaceChildren();
-
-    items.forEach(item=>{
-      let p=document.createElement('p');
-
-      p.textContent=
-        item.name+' | '+
-        item.qty+' адад | '+
-        'Харид: '+item.cost+' с | '+
-        'Фурӯш: '+item.price+' с';
-
-      el('stockList').appendChild(p);
-    });
-  }
-
-  el('stockForm').onsubmit=function(e){
-    e.preventDefault();
-
-    let item={
-      name:el('stockName').value.trim(),
-      qty:Number(el('stockQty').value),
-      cost:Number(el('stockCost').value),
-      price:Number(el('stockPrice').value)
-    };
-
-    if(!item.name)return;
-
-    let next=[...items,item];
-
-    try{
-      localStorage.setItem(
-        'avzalStock',
-        JSON.stringify(next)
-      );
-
-      items=next;
-      this.reset();
-      showItems();
-
-    }catch(e){
-      alert('Хатогӣ: маълумот сабт нашуд');
-    }
-  };
-
-  showItems();
-}
-
-function closeStock(){
-  el('stock').hidden=true;
-  el('menu').style.display='grid';
-   }
-update();
-
 function openExpenses(){
-  let amountText = prompt('Маблағи хароҷотро навис (сомонӣ):');
-  if(amountText === null || amountText.trim() === '') return;
-
-  let amount = Number(amountText.replace(',', '.'));
-  if(!Number.isFinite(amount) || amount <= 0){
-    alert('Маблағ нодуруст аст!');
-    return;
-  }
-
-  let reason = prompt('Сабаби хароҷотро навис:');
-  if(reason === null || !reason.trim()) return;
-
-  let method = prompt('Тарзи пардохт:\n1 - Нақд\n2 - Корт');
-  if(method !== '1' && method !== '2'){
-    alert('Нақд ё кортро дуруст интихоб кун!');
-    return;
-  }
-
-  let expenses = JSON.parse(
-    localStorage.getItem('avzalshoh_expenses') || '[]'
-  );
-
-  expenses.push({
-    amount: amount,
-    reason: reason.trim(),
-    method: method === '1' ? 'cash' : 'card',
-    date: today()
-  });
-
-  localStorage.setItem(
-    'avzalshoh_expenses',
-    JSON.stringify(expenses)
-  );
-
-  alert('Хароҷот бомуваффақият сабт шуд!');
+const text=prompt('Маблағи хароҷот:');
+if(text===null)return;
+const amount=Number(text.replace(',','.'));
+if(!Number.isFinite(amount)||amount<=0)return alert('Маблағ нодуруст аст');
+const reason=prompt('Сабаби хароҷот:');
+if(!reason||!reason.trim())return;
+const method=prompt('1 — Нақд, 2 — Корт');
+if(method!=='1'&&method!=='2')return;
+refresh();
+expenses.push({
+amount,reason:reason.trim(),
+method:method==='1'?'cash':'card',
+date:today(),createdAt:timestamp()
+});
+save('avzalshoh_expenses',expenses);
+alert('Хароҷот сабт шуд');
 }
-
+function soon(){
+alert('Ҳисоби фоида ва дастрасии соҳиби мағоза ҳанӯз омода нест');
+}
+update();
 </script>
 </body>
 </html>
